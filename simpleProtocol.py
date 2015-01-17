@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*
 
-import time
 import binascii
 
 class comBase(object):
@@ -9,14 +8,16 @@ class comBase(object):
     Base Communication Object:
         This represnts a protocol object base. it can be used to
         send and recieve data to/from another device.
-        Other classes can inherit from this and add user functions.
+        
+        Intended use is for other classes can inherit from this 
+        and add user functions for whatever the particular use 
+        case is.
         
         communicates using packets with `message|crc`, an example:
             the string: 
                 'derp a herp'
             wraps to:
-                '`derp a herp|-12345`' 
-            (where -12345 is the CRC)
+                '`derp a herp|-32008279`' 
     """
     
     HEADER_CHAR = '`'
@@ -91,7 +92,7 @@ class comBase(object):
             
 if __name__ == '__main__':
     test = comBase()
-    initialMessage = 'i wonder how long these messages can be? and what sorts of characters they can contain? <>:"{}+_)_'
+    initialMessage = 'derp a herp'
     print(initialMessage)
     sMessage = test._wrapPacket(initialMessage)
     print(sMessage)
