@@ -29,20 +29,32 @@ class comBase(object):
         for char in sMessage:
             yield char
                     
-    def _wrapPacket(self, sMessage):
+    def _escapeHeader(self, string):
+        """Returns string with escaped header character"""
+        temp = string.replace(self.HEADER_CHAR, self.ESCAPE_CHAR + self.HEADER_CHAR)
+        return temp
+    
+    def _escapeEscape(self, string):
+        """Returns string with escaped escape character"""
+        temp2 = string.replace(self.ESCAPE_CHAR, self.ESCAPE_CHAR + self.ESCAPE_CHAR)
+        return temp2
+
+
+    def wrapPacket(self, sMessage):
         """Wraps the data/command into a packet to transmit"""
-        temp = sMessage.replace('`', '\\`')
-        temp2 = temp.replace('\\', '\\\\')
+
+        temp = self._escapeHeader(sMessage)
+        temp = self._escapeEscape(temp)
         crc = self._calcCRC(sMessage)
-        ret = self.HEADER_CHAR + temp2 + self.DELIM_CHAR + str(crc) + self.HEADER_CHAR
+        ret = self.HEADER_CHAR + temp + self.DELIM_CHAR + str(crc) + self.HEADER_CHAR
         return ret
 
-    def _unwrapPacket(self, sMessage):
+    def unwrapPacket(self, sMessage):
         """Unwraps the data/commands in the recieved packet"""
         
         inMessage = False
-        inFooter = False        
-        inEscape = False 
+        inFooter = False
+        inEscape = False
         
         ret = ''
         crc = ''
@@ -85,16 +97,24 @@ class comBase(object):
         return binascii.crc32(sMessage)
     
     def _checkCRC(self, sMessage, CRC):
+        """Calculate and check (bool) CRC32 (int) of sMessage (str)"""
         if binascii.crc32(sMessage) == int(CRC):
             return True
         else:
             return False
+        
+    def send(self, sMessage, target):
+        """Placeholder for inherited classes to overload"""
+    
+    def recieve(self):
+        """Placeholder for inherited classes to overload"""
+        pass    
             
 if __name__ == '__main__':
     test = comBase()
     initialMessage = 'derp a herp'
     print(initialMessage)
-    sMessage = test._wrapPacket(initialMessage)
+    sMessage = test.wrapPacket(initialMessage)
     print(sMessage)
-    ret = test._unwrapPacket(sMessage)
+    ret = test.unwrapPacket(sMessage)
     print(ret + '\n')
